@@ -4,6 +4,24 @@ public class TeacherDashboard extends BaseDashboard {
     }
 
     @Override
+    protected void onMenuClick(String label) {
+        contentArea.removeAll();
+        switch (label) {
+            case "My Courses":
+                contentArea.add(new TeacherCoursesPanel(username), java.awt.BorderLayout.CENTER);
+                break;
+            case "Post Announcement":
+                contentArea.add(new TeacherAnnouncementsPanel(), java.awt.BorderLayout.CENTER);
+                break;
+            default:
+                super.onMenuClick(label);
+                return;
+        }
+        contentArea.revalidate();
+        contentArea.repaint();
+    }
+
+    @Override
     protected String[][] getMenuItems() {
         return new String[][] {
             {"🏠", "Home"},
