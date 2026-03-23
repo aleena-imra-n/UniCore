@@ -1,11 +1,15 @@
 package util;
 
-
 import java.sql.*;
 
 /**
- * Singleton database connection utility for UMS.
+ * Database connection factory for UMS.
  * Connects to SQL Server UMS_DB.
+ *
+ * Design note: each call to getConnection() returns a *new* Connection.
+ * Callers are responsible for closing it (try-with-resources).
+ * This avoids the shared-singleton race condition that arises when
+ * multiple SwingWorker threads call a DAO concurrently.
  */
 public class DBConnection {
 
@@ -13,32 +17,22 @@ public class DBConnection {
     private static final String USER     = "sa";
     private static final String PASSWORD = "YourPasswordHere";
 
-    private static Connection connection = null;
-
     private DBConnection() {}
 
     /**
-     * Returns a singleton Connection instance.
-     * Re-opens if closed.
+     * Opens and returns a new JDBC Connection.
+     * Always wrap the caller in try-with-resources:
+     *
+     *   try (Connection con = DBConnection.getConnection()) { ... }
+     *
+     * @throws SQLException if the driver is missing or the server is unreachable
      */
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            try {
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            } catch (ClassNotFoundException e) {
-                throw new SQLException("SQL Server JDBC driver not found.", e);
-            }
-        }
-        return connection;
-    }
-
-    /** Closes the shared connection (call on app shutdown). */
-    public static void closeConnection() {
-        if (connection != null) {
-            try { connection.close(); }
-            catch (SQLException ignored) {}
-            connection = null;
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("SQL Server JDBC driver not found.", e);
         }
     }
 }
