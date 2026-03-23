@@ -12,6 +12,7 @@ import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * CourseRegistrationPanel — Pure UI layer.
@@ -45,6 +46,8 @@ public class CourseRegistrationPanel extends JPanel {
     private JLabel                statusLabel;
     private JPanel                registeredListPanel;
     private JLabel                countBadge;
+    private JLabel                creditHoursBadge;
+    private StyledButton          registerBtn;
 
     // ─────────────────────────────────────────────────────────────────────────
     //  Constructors
@@ -70,13 +73,30 @@ public class CourseRegistrationPanel extends JPanel {
         add(buildHeader(), BorderLayout.NORTH);
         add(buildBody(),   BorderLayout.CENTER);
 
-        // Initialise service (resolves student_id) then populate data
-        if (!service.init(username)) {
-            showStatus("Failed to load student account. Please re-login.", Color.RED);
-        } else {
-            loadAvailableCourses();
-            loadEnrolledCourses();
-        }
+        // Resolve student_id and populate both panels off the EDT so the UI
+        // stays responsive while the DB round-trip completes.
+        new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() {
+                return service.init(username);   // DB call — off EDT
+            }
+
+            @Override
+            protected void done() {             // back on EDT
+                try {
+                    if (!get()) {
+                        showStatus("Failed to load student account. Please re-login.",
+                                   Color.RED);
+                    } else {
+                        loadAvailableCourses();
+                        loadEnrolledCourses();
+                    }
+                } catch (Exception ex) {
+                    showStatus("Unexpected error loading account: " + ex.getMessage(),
+                               Color.RED);
+                }
+            }
+        }.execute();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -217,7 +237,7 @@ public class CourseRegistrationPanel extends JPanel {
         card.add(Box.createVerticalStrut(12));
 
         // ── Register button ───────────────────────────────────────────────────
-        StyledButton registerBtn = new StyledButton("Register",
+        registerBtn = new StyledButton("Register",
             AppTheme.MID_BLUE, AppTheme.DEEP_BLUE);
         registerBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         registerBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
@@ -286,6 +306,11 @@ public class CourseRegistrationPanel extends JPanel {
         title.setFont(AppTheme.headingFont(15));
         title.setForeground(AppTheme.NAVY);
 
+        // Credit-hours summary — updated whenever the enrolled list changes
+        creditHoursBadge = new JLabel("0 cr.");
+        creditHoursBadge.setFont(AppTheme.bodyFont(11));
+        creditHoursBadge.setForeground(AppTheme.TEXT_MUTED);
+
         countBadge = new JLabel("0") {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -303,8 +328,13 @@ public class CourseRegistrationPanel extends JPanel {
         countBadge.setPreferredSize(new Dimension(26, 26));
         countBadge.setOpaque(false);
 
+        JPanel eastBadges = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        eastBadges.setOpaque(false);
+        eastBadges.add(creditHoursBadge);
+        eastBadges.add(countBadge);
+
         titleRow.add(title,      BorderLayout.WEST);
-        titleRow.add(countBadge, BorderLayout.EAST);
+        titleRow.add(eastBadges, BorderLayout.EAST);
         card.add(titleRow, BorderLayout.NORTH);
 
         // Scrollable list
@@ -387,51 +417,117 @@ public class CourseRegistrationPanel extends JPanel {
     /** Called when the student clicks "Register". */
     private void onRegisterClicked() {
         CourseItem selected = (CourseItem) courseDropdown.getSelectedItem();
-        RegisterResult result = service.register(selected);
 
-        switch (result.outcome()) {
-            case NONE_SELECTED    -> showStatus("⚠  " + result.message(), AppTheme.GOLD_DARK);
-            case ALREADY_ENROLLED -> showStatus("⚠  " + result.message(), AppTheme.GOLD_DARK);
-            case ERROR            -> showStatus("✖  " + result.message(), Color.RED);
-            case SUCCESS          -> {
-                showStatus("✅  " + result.message(), new Color(27, 130, 60));
-                appendEnrolledRow(result.course());
-                // Remove just-registered course from the dropdown so it can't be re-selected
-                courseDropdown.removeItem(selected);
-            }
+        // Guard: nothing selected — fast path, no DB trip needed
+        if (selected == null) {
+            showStatus("⚠  Please select a course first.", AppTheme.GOLD_DARK);
+            return;
         }
+
+        // Disable the button for the duration of the DB call so double-clicking
+        // cannot fire a second registration before the first completes.
+        registerBtn.setEnabled(false);
+        showStatus("Registering…", AppTheme.TEXT_MUTED);
+
+        new SwingWorker<RegisterResult, Void>() {
+            @Override
+            protected RegisterResult doInBackground() {
+                return service.register(selected);      // DB call — off EDT
+            }
+
+            @Override
+            protected void done() {                     // back on EDT
+                registerBtn.setEnabled(true);
+                try {
+                    RegisterResult result = get();
+                    switch (result.outcome()) {
+                        case NONE_SELECTED    ->
+                            showStatus("⚠  " + result.message(), AppTheme.GOLD_DARK);
+                        case ALREADY_ENROLLED ->
+                            showStatus("⚠  " + result.message(), AppTheme.GOLD_DARK);
+                        case ERROR            ->
+                            showStatus("✖  " + result.message(), Color.RED);
+                        case SUCCESS          -> {
+                            showStatus("✅  " + result.message(),
+                                       new Color(27, 130, 60));
+                            // Add to enrolled panel
+                            appendEnrolledRow(result.course());
+                            // Remove from dropdown so it cannot be re-registered
+                            courseDropdown.removeItem(selected);
+                            // Reset dropdown to placeholder and clear info tiles
+                            courseDropdown.setSelectedIndex(0);
+                            clearInfoTiles();
+                        }
+                    }
+                } catch (Exception ex) {
+                    showStatus("✖  Unexpected error: " + ex.getMessage(), Color.RED);
+                }
+            }
+        }.execute();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     //  DATA LOADING  (calls service, no SQL here)
     // ─────────────────────────────────────────────────────────────────────────
 
-    /** Populates the course dropdown from the service. */
+    /** Populates the course dropdown from the service (runs DB query off EDT). */
     private void loadAvailableCourses() {
-        // Keep placeholder at index 0
+        // Keep placeholder at index 0; clear stale items synchronously on EDT
         while (courseDropdown.getItemCount() > 1) courseDropdown.removeItemAt(1);
 
-        List<CourseItem> courses = service.getAvailableCourses();
-        courses.forEach(courseDropdown::addItem);
+        new SwingWorker<List<CourseItem>, Void>() {
+            @Override
+            protected List<CourseItem> doInBackground() {
+                return service.getAvailableCourses();   // DB call — off EDT
+            }
+
+            @Override
+            protected void done() {                     // back on EDT
+                try {
+                    List<CourseItem> courses = get();
+                    courses.forEach(courseDropdown::addItem);
+                } catch (Exception ex) {
+                    showStatus("Could not load available courses: " + ex.getMessage(),
+                               Color.RED);
+                }
+            }
+        }.execute();
     }
 
-    /** Populates the enrolled list from the service (shows existing enrollments on load). */
+    /** Populates the enrolled list from the service off the EDT. */
     private void loadEnrolledCourses() {
-        List<EnrolledCourse> enrolled = service.getEnrolledCourses();
-        if (enrolled.isEmpty()) {
-            showEmptyEnrolledMessage();
-            return;
-        }
-        registeredListPanel.removeAll();
-        registeredListPanel.add(Box.createVerticalStrut(4));
-        enrolled.forEach(course -> {
-            registeredListPanel.add(buildEnrolledRow(course));
-            registeredListPanel.add(Box.createVerticalStrut(8));
-        });
-        registeredListPanel.revalidate();
-        registeredListPanel.repaint();
-        countBadge.setText(String.valueOf(enrolled.size()));
-        countBadge.repaint();
+        new SwingWorker<List<EnrolledCourse>, Void>() {
+            @Override
+            protected List<EnrolledCourse> doInBackground() {
+                return service.getEnrolledCourses();    // DB call — off EDT
+            }
+
+            @Override
+            protected void done() {                     // back on EDT
+                try {
+                    List<EnrolledCourse> enrolled = get();
+                    if (enrolled.isEmpty()) {
+                        showEmptyEnrolledMessage();
+                        return;
+                    }
+                    registeredListPanel.removeAll();
+                    registeredListPanel.add(Box.createVerticalStrut(4));
+                    enrolled.forEach(course -> {
+                        registeredListPanel.add(buildEnrolledRow(course));
+                        registeredListPanel.add(Box.createVerticalStrut(8));
+                    });
+                    registeredListPanel.revalidate();
+                    registeredListPanel.repaint();
+                    countBadge.setText(String.valueOf(enrolled.size()));
+                    countBadge.repaint();
+                    int totalCr = service.getTotalCreditHours(enrolled);
+                    creditHoursBadge.setText(totalCr + " cr.");
+                } catch (Exception ex) {
+                    showStatus("Could not load enrolled courses: " + ex.getMessage(),
+                               Color.RED);
+                }
+            }
+        }.execute();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -459,6 +555,10 @@ public class CourseRegistrationPanel extends JPanel {
         int newCount = Integer.parseInt(countBadge.getText()) + 1;
         countBadge.setText(String.valueOf(newCount));
         countBadge.repaint();
+        // Update credit-hours total — parse current value and add new course
+        String crText = creditHoursBadge.getText().replace(" cr.", "").trim();
+        int currentCr = crText.isEmpty() ? 0 : Integer.parseInt(crText);
+        creditHoursBadge.setText((currentCr + course.getCreditHours()) + " cr.");
     }
 
     private void showEmptyEnrolledMessage() {
@@ -472,6 +572,7 @@ public class CourseRegistrationPanel extends JPanel {
         registeredListPanel.repaint();
         countBadge.setText("0");
         countBadge.repaint();
+        creditHoursBadge.setText("0 cr.");
     }
 
     private void clearInfoTiles() {
