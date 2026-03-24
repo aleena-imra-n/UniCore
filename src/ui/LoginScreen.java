@@ -7,21 +7,24 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.HashMap;
 import java.util.Map;
+import bl.AuthService;     
+import model.UserSession;
 
 public class LoginScreen extends JFrame {
 
-    // Demo credentials: role -> {username, password}
-    private static final Map<String, String[]> USERS = new HashMap<>();
-    static {
-        USERS.put("Student", new String[]{"student1", "pass123"});
-        USERS.put("Teacher", new String[]{"teacher1", "pass123"});
-        USERS.put("Admin",   new String[]{"admin1",   "pass123"});
-    }
+//    // Demo credentials: role -> {username, password}
+//    private static final Map<String, String[]> USERS = new HashMap<>();
+//    static {
+//        USERS.put("Student", new String[]{"student1", "pass123"});
+//        USERS.put("Teacher", new String[]{"teacher1", "pass123"});
+//        USERS.put("Admin",   new String[]{"admin1",   "pass123"});
+//    }
 
     private StyledTextField usernameField;
     private StyledPasswordField passwordField;
     private JComboBox<String> roleCombo;
     private JLabel errorLabel;
+    private JButton loginBtn;
 
     public LoginScreen() {
         setTitle("UniCore — University Management System");
@@ -197,12 +200,12 @@ public class LoginScreen extends JFrame {
         form.add(Box.createVerticalStrut(8));
 
         // Login button
-        StyledButton loginBtn = new StyledButton("Sign In", AppTheme.MID_BLUE, AppTheme.DEEP_BLUE);
+
+        loginBtn = new StyledButton("Sign In", AppTheme.MID_BLUE, AppTheme.DEEP_BLUE);
         loginBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         loginBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
         loginBtn.addActionListener(e -> handleLogin());
         form.add(loginBtn);
-        form.add(Box.createVerticalStrut(20));
 
         // Hint
         JLabel hint = new JLabel("Demo: student1 / teacher1 / admin1  |  pass: pass123");
@@ -235,28 +238,75 @@ public class LoginScreen extends JFrame {
         ));
     }
 
-    private void handleLogin() {
+     private void handleLogin() {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
-        String role = (String) roleCombo.getSelectedItem();
+        String selectedRole = (String) roleCombo.getSelectedItem();
 
+        // Validation
         if (username.isEmpty() || password.isEmpty()) {
             errorLabel.setText("⚠  All fields are required.");
             return;
         }
 
-        String[] creds = USERS.get(role);
-        if (creds != null && creds[0].equals(username) && creds[1].equals(password)) {
-            errorLabel.setText(" ");
-            dispose();
-            switch (role) {
-                case "Student": new StudentDashboard(username).setVisible(true); break;
-                case "Teacher": new TeacherDashboard(username).setVisible(true); break;
-                case "Admin":   new AdminDashboard(username).setVisible(true);   break;
+        // Disable login button during authentication
+        loginBtn.setEnabled(false);
+        loginBtn.setText("Authenticating...");
+        errorLabel.setText(" ");
+
+        // Perform authentication in background thread
+        new SwingWorker<UserSession, Void>() {
+            @Override
+            protected UserSession doInBackground() throws Exception {
+                AuthService authService = new AuthService();
+                return authService.login(username, password);
             }
-        } else {
-            errorLabel.setText("⚠  Invalid username or password. Please try again.");
-            passwordField.setText("");
-        }
+
+            @Override
+            protected void done() {
+                try {
+                    UserSession session = get();
+                    
+                    if (session != null) {
+                        // Check if the role from database matches the selected role
+                        String dbRole = session.getRole();
+                        String selectedRoleLower = selectedRole.toLowerCase();
+                        
+                        if (!dbRole.equals(selectedRoleLower)) {
+                            errorLabel.setText("⚠  Invalid role. This user is a " + dbRole);
+                            loginBtn.setEnabled(true);
+                            loginBtn.setText("Sign In");
+                            return;
+                        }
+                        
+                        // Authentication successful
+                        errorLabel.setText(" ");
+                        dispose();  // Close login window
+                        
+                        // Open appropriate dashboard
+                        if (session.isStudent()) {
+                            new StudentDashboard(session.getUsername()).setVisible(true);
+                        } else if (session.isTeacher()) {
+                            new TeacherDashboard(session.getUsername()).setVisible(true);
+                        } else if (session.isAdmin()) {
+                            new AdminDashboard(session.getUsername()).setVisible(true);
+                        }
+                        
+                    } else {
+                        // Authentication failed
+                        errorLabel.setText("⚠  Invalid username or password. Please try again.");
+                        passwordField.setText("");
+                        loginBtn.setEnabled(true);
+                        loginBtn.setText("Sign In");
+                    }
+                } catch (Exception e) {
+                    errorLabel.setText("⚠  Database error: " + e.getMessage());
+                    loginBtn.setEnabled(true);
+                    loginBtn.setText("Sign In");
+                    e.printStackTrace();
+                }
+            }
+        }.execute();
     }
 }
+

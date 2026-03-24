@@ -152,14 +152,15 @@ public class AnnouncementService {
                 "Please enter a title.", null);
         }
 
-        // Rule 3: message required
-        String cleanMsg = (message == null) ? "" : message.trim();
-        if (cleanMsg.isEmpty()) {
-            return new PostResult(Outcome.NO_MESSAGE,
-                "Please enter a message.", null);
-        }
+//        // Rule 3: message required
+//        String cleanMsg = (message == null) ? "" : message.trim();
+//        if (cleanMsg.isEmpty()) {
+//            return new PostResult(Outcome.NO_MESSAGE,
+//                "Please enter a message.", null);
+//        }
 
         // Rule 4: length guard
+        String cleanMsg = (message == null) ? "" : message.trim();
         if (cleanMsg.length() > MAX_MESSAGE_LENGTH) {
             return new PostResult(Outcome.MESSAGE_TOO_LONG,
                 "Message exceeds " + MAX_MESSAGE_LENGTH + " characters ("

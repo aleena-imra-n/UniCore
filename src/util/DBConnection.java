@@ -13,9 +13,9 @@ import java.sql.*;
  */
 public class DBConnection {
 
-    private static final String URL      = "jdbc:sqlserver://localhost:1433;databaseName=UMS_DB;encrypt=false";
+	private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=UMS_DB;encrypt=false";
     private static final String USER     = "sa";
-    private static final String PASSWORD = "YourPasswordHere";
+    private static final String PASSWORD = "Admin@1234";
 
     private DBConnection() {}
 

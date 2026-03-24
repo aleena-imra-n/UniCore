@@ -237,6 +237,7 @@ public class TeacherAnnouncementsPanel extends JPanel {
 
         JScrollPane messageScroll = new JScrollPane(messageArea);
         messageScroll.setBorder(BorderFactory.createLineBorder(AppTheme.LIGHT_BLUE, 2));
+        messageScroll.setPreferredSize(new Dimension(400, 120)); 
 
         JPanel centerWrapper = new JPanel(new BorderLayout(0, 4));
         centerWrapper.setOpaque(false);
@@ -407,7 +408,6 @@ public class TeacherAnnouncementsPanel extends JPanel {
         switch (result.outcome()) {
             case NO_COURSE,
                  NO_TITLE,
-                 NO_MESSAGE,
                  MESSAGE_TOO_LONG -> showStatus("⚠  " + result.message(), AppTheme.GOLD_DARK);
             case ERROR            -> showStatus("✖  " + result.message(), Color.RED);
             case SUCCESS          -> {
