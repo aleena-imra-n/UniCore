@@ -11,17 +11,28 @@ public class StudentDashboard extends BaseDashboard {
     @Override
     protected void onMenuClick(String label) {
         contentArea.removeAll();
-        if (label.equals("My Courses")) {
-            contentArea.setBackground(AppTheme.PALE_BLUE);
-            contentArea.add(new CourseRegistrationPanel(username), BorderLayout.CENTER);
-        } else {
-            JPanel placeholder = new JPanel(new GridBagLayout());
-            placeholder.setOpaque(false);
-            JLabel msg = new JLabel(label + " — Coming in future sprint");
-            msg.setFont(AppTheme.titleFont(18));
-            msg.setForeground(AppTheme.MID_BLUE);
-            placeholder.add(msg);
-            contentArea.add(placeholder, BorderLayout.CENTER);
+        switch (label) {
+            case "My Courses" -> {
+                contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new CourseRegistrationPanel(username), BorderLayout.CENTER);
+            }
+            case "Announcements" -> {
+                contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new StudentAnnouncementsPanel(username), BorderLayout.CENTER);
+            }
+            case "Attendance" -> {
+                contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new StudentAttendancePanel(username), BorderLayout.CENTER);
+            }
+            default -> {
+                JPanel placeholder = new JPanel(new GridBagLayout());
+                placeholder.setOpaque(false);
+                JLabel msg = new JLabel(label + " — Coming in future sprint");
+                msg.setFont(AppTheme.titleFont(18));
+                msg.setForeground(AppTheme.MID_BLUE);
+                placeholder.add(msg);
+                contentArea.add(placeholder, BorderLayout.CENTER);
+            }
         }
         contentArea.revalidate();
         contentArea.repaint();
