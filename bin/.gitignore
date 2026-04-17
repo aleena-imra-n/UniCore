@@ -1,6 +1,5 @@
-/ui/
-/util/
-/app/
+/bl/
 /dao/
 /model/
-/bl/
+/ui/
+/util/

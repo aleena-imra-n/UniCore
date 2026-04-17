@@ -18,6 +18,9 @@ public class TeacherDashboard extends BaseDashboard {
             case "Mark Attendance":
             	contentArea.add(new MarkAttendancePanel(username), java.awt.BorderLayout.CENTER);
             	break;
+            case "Upload Marks":
+                contentArea.add(new UploadMarksPanel(username), java.awt.BorderLayout.CENTER);
+                break;
             default:
                 super.onMenuClick(label);
                 return;

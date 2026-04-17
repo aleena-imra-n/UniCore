@@ -24,6 +24,11 @@ public class StudentDashboard extends BaseDashboard {
                 contentArea.setBackground(AppTheme.PALE_BLUE);
                 contentArea.add(new StudentAttendancePanel(username), BorderLayout.CENTER);
             }
+            case "Marks & Grades" -> {
+            	contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new StudentMarksPanel(username), BorderLayout.CENTER);
+                
+            }
             default -> {
                 JPanel placeholder = new JPanel(new GridBagLayout());
                 placeholder.setOpaque(false);
