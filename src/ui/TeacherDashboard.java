@@ -1,29 +1,40 @@
 package ui;
 
+import bl.DashboardStatsService;
+import java.awt.*;
+
 public class TeacherDashboard extends BaseDashboard {
+
+    private final DashboardStatsService statsService = new DashboardStatsService();
+
     public TeacherDashboard(String username) {
-        super(username, "Teacher", 1000, 640);
+        super(username, "Teacher", 1100, 680);
     }
 
     @Override
     protected void onMenuClick(String label) {
         contentArea.removeAll();
+        contentArea.setBackground(AppTheme.PALE_BLUE);
         switch (label) {
-            case "My Courses":
-                contentArea.add(new TeacherCoursesPanel(username), java.awt.BorderLayout.CENTER);
-                break;
-            case "Post Announcement":
-                contentArea.add(new TeacherAnnouncementsPanel(username), java.awt.BorderLayout.CENTER);
-                break;
-            case "Mark Attendance":
-            	contentArea.add(new MarkAttendancePanel(username), java.awt.BorderLayout.CENTER);
-            	break;
-            case "Upload Marks":
-                contentArea.add(new UploadMarksPanel(username), java.awt.BorderLayout.CENTER);
-                break;
-            default:
-                super.onMenuClick(label);
-                return;
+            case "Home" ->
+            	super.onMenuClick("Home");
+            case "My Courses" ->
+                contentArea.add(new TeacherCoursesPanel(username), BorderLayout.CENTER);
+            case "Post Announcement" ->
+                contentArea.add(new TeacherAnnouncementsPanel(username), BorderLayout.CENTER);
+            case "Mark Attendance" ->
+                contentArea.add(new MarkAttendancePanel(username), BorderLayout.CENTER);
+            case "Upload Marks" ->
+                contentArea.add(new UploadMarksPanel(username), BorderLayout.CENTER);
+            default -> {
+                javax.swing.JPanel placeholder = new javax.swing.JPanel(new java.awt.GridBagLayout());
+                placeholder.setOpaque(false);
+                javax.swing.JLabel msg = new javax.swing.JLabel(label + " — Coming in future sprint");
+                msg.setFont(AppTheme.titleFont(18));
+                msg.setForeground(AppTheme.MID_BLUE);
+                placeholder.add(msg);
+                contentArea.add(placeholder, BorderLayout.CENTER);
+            }
         }
         contentArea.revalidate();
         contentArea.repaint();
@@ -47,9 +58,14 @@ public class TeacherDashboard extends BaseDashboard {
     @Override
     protected String[][] getDashboardStats() {
         return new String[][] {
-            {"3",  "Courses",  "#1565C0"},
-            {"72", "Students", "#2E7D32"},
-            {"2",  "Pending",  "#C62828"},
+            {"…", "Courses",  "#1565C0"},
+            {"…", "Students", "#2E7D32"},
+            {"…", "Pending",  "#C62828"},
         };
+    }
+
+    @Override
+    protected String[][] fetchLiveStats() {
+        return statsService.getTeacherStats(username);
     }
 }

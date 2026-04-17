@@ -1,9 +1,13 @@
 package ui;
 
+import bl.DashboardStatsService;
 import javax.swing.*;
 import java.awt.*;
 
 public class StudentDashboard extends BaseDashboard {
+
+    private final DashboardStatsService statsService = new DashboardStatsService();
+
     public StudentDashboard(String username) {
         super(username, "Student", 1100, 680);
     }
@@ -11,23 +15,22 @@ public class StudentDashboard extends BaseDashboard {
     @Override
     protected void onMenuClick(String label) {
         contentArea.removeAll();
+        contentArea.setBackground(AppTheme.PALE_BLUE);
         switch (label) {
+            case "Home" -> {
+            	super.onMenuClick("Home");
+            }
             case "My Courses" -> {
-                contentArea.setBackground(AppTheme.PALE_BLUE);
                 contentArea.add(new CourseRegistrationPanel(username), BorderLayout.CENTER);
             }
             case "Announcements" -> {
-                contentArea.setBackground(AppTheme.PALE_BLUE);
                 contentArea.add(new StudentAnnouncementsPanel(username), BorderLayout.CENTER);
             }
             case "Attendance" -> {
-                contentArea.setBackground(AppTheme.PALE_BLUE);
                 contentArea.add(new StudentAttendancePanel(username), BorderLayout.CENTER);
             }
             case "Marks & Grades" -> {
-            	contentArea.setBackground(AppTheme.PALE_BLUE);
                 contentArea.add(new StudentMarksPanel(username), BorderLayout.CENTER);
-                
             }
             default -> {
                 JPanel placeholder = new JPanel(new GridBagLayout());
@@ -42,6 +45,8 @@ public class StudentDashboard extends BaseDashboard {
         contentArea.revalidate();
         contentArea.repaint();
     }
+    
+    
 
     @Override
     protected String[][] getMenuItems() {
@@ -62,10 +67,17 @@ public class StudentDashboard extends BaseDashboard {
 
     @Override
     protected String[][] getDashboardStats() {
+        // Shown immediately — replaced by live values once DB loads
         return new String[][] {
-            {"5",   "Courses",  "#1565C0"},
-            {"88%", "Attend.",  "#2E7D32"},
-            {"3.4", "GPA",      "#F57C00"},
+            {"…", "Courses",  "#1565C0"},
+            {"…", "Attend.",  "#2E7D32"},
+            {"…", "Marks",    "#F57C00"},
         };
     }
+
+    @Override
+    protected String[][] fetchLiveStats() {
+        return statsService.getStudentStats(username);
+    }
 }
+

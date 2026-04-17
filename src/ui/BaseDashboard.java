@@ -11,9 +11,12 @@ public abstract class BaseDashboard extends JFrame {
     protected String role;
     protected JPanel contentArea;
 
+    // Stat value labels — updated after DB load
+    private JLabel[] statValueLabels;
+
     public BaseDashboard(String username, String role, int w, int h) {
         this.username = username;
-        this.role = role;
+        this.role     = role;
         setTitle("UniCore — " + role + " Dashboard");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(w, h);
@@ -24,14 +27,19 @@ public abstract class BaseDashboard extends JFrame {
 
         JPanel body = new JPanel(new BorderLayout());
         body.add(buildSidebar(), BorderLayout.WEST);
+
         contentArea = new JPanel(new BorderLayout());
         contentArea.setBackground(AppTheme.PALE_BLUE);
-        contentArea.add(buildWelcomePanel(), BorderLayout.CENTER);
+        // Home panel is the default view on login
+        contentArea.add(buildHomePanel(), BorderLayout.CENTER);
         body.add(contentArea, BorderLayout.CENTER);
         add(body, BorderLayout.CENTER);
+
+        // Load real stats from DB after UI is shown
+        loadStatsAsync();
     }
 
-    // ── Top Bar ──────────────────────────────────────────────────────────────
+    // ── Top Bar ───────────────────────────────────────────────────────────────
     private JPanel buildTopBar() {
         JPanel bar = new JPanel(new BorderLayout()) {
             @Override protected void paintComponent(Graphics g) {
@@ -40,7 +48,6 @@ public abstract class BaseDashboard extends JFrame {
                 GradientPaint gp = new GradientPaint(0, 0, AppTheme.NAVY, getWidth(), 0, AppTheme.DEEP_BLUE);
                 g2.setPaint(gp);
                 g2.fillRect(0, 0, getWidth(), getHeight());
-                // Gold bottom line
                 g2.setColor(AppTheme.GOLD);
                 g2.setStroke(new BasicStroke(2.5f));
                 g2.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
@@ -76,7 +83,7 @@ public abstract class BaseDashboard extends JFrame {
         leftSide.add(title);
         bar.add(leftSide, BorderLayout.WEST);
 
-        // Right: user info + logout
+        // Right: role badge + username + logout
         JPanel rightSide = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         rightSide.setOpaque(false);
 
@@ -99,7 +106,8 @@ public abstract class BaseDashboard extends JFrame {
         userLabel.setFont(AppTheme.bodyFont(13));
         userLabel.setForeground(AppTheme.LIGHT_BLUE);
 
-        StyledButton logoutBtn = new StyledButton("Logout", new Color(180, 40, 40), new Color(150, 20, 20));
+        StyledButton logoutBtn = new StyledButton("Logout",
+            new Color(180, 40, 40), new Color(150, 20, 20));
         logoutBtn.setPreferredSize(new Dimension(90, 32));
         logoutBtn.setFont(AppTheme.headingFont(12));
         logoutBtn.addActionListener(e -> {
@@ -124,7 +132,8 @@ public abstract class BaseDashboard extends JFrame {
         JPanel sidebar = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                GradientPaint gp = new GradientPaint(0, 0, AppTheme.DEEP_BLUE, 0, getHeight(), new Color(10, 35, 80));
+                GradientPaint gp = new GradientPaint(
+                    0, 0, AppTheme.DEEP_BLUE, 0, getHeight(), new Color(10, 35, 80));
                 g2.setPaint(gp);
                 g2.fillRect(0, 0, getWidth(), getHeight());
                 g2.dispose();
@@ -151,7 +160,7 @@ public abstract class BaseDashboard extends JFrame {
         JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 10)) {
             boolean hovered = false;
             { addMouseListener(new MouseAdapter() {
-                public void mouseEntered(MouseEvent e) { hovered = true; repaint(); }
+                public void mouseEntered(MouseEvent e) { hovered = true;  repaint(); }
                 public void mouseExited(MouseEvent e)  { hovered = false; repaint(); }
                 public void mouseClicked(MouseEvent e) { onMenuClick(label); }
             }); }
@@ -185,10 +194,10 @@ public abstract class BaseDashboard extends JFrame {
         return item;
     }
 
-    // ── Welcome panel ─────────────────────────────────────────────────────────
-    private JPanel buildWelcomePanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setOpaque(false);
+    // ── Home Panel (shown on login and when Home is clicked) ──────────────────
+    protected JPanel buildHomePanel() {
+        JPanel outer = new JPanel(new GridBagLayout());
+        outer.setOpaque(false);
 
         JPanel card = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
@@ -198,16 +207,17 @@ public abstract class BaseDashboard extends JFrame {
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
                 g2.setColor(AppTheme.GOLD);
                 g2.setStroke(new BasicStroke(3));
-                g2.drawLine(30, getHeight() - 6, 30 + 60, getHeight() - 6);
+                g2.drawLine(30, getHeight() - 6, 90, getHeight() - 6);
                 g2.dispose();
             }
         };
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
-        card.setPreferredSize(new Dimension(500, 260));
+        card.setPreferredSize(new Dimension(560, 290));
         card.setOpaque(false);
 
-        JLabel greet = new JLabel("Hello, " + username + "! ");
+        // Greeting
+        JLabel greet = new JLabel("Hello, " + username + "! 👋");
         greet.setFont(AppTheme.titleFont(26));
         greet.setForeground(AppTheme.NAVY);
         greet.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -219,7 +229,7 @@ public abstract class BaseDashboard extends JFrame {
         roleInfo.setForeground(AppTheme.TEXT_MUTED);
         roleInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.add(roleInfo);
-        card.add(Box.createVerticalStrut(20));
+        card.add(Box.createVerticalStrut(6));
 
         JLabel prompt = new JLabel("Select an option from the sidebar to get started.");
         prompt.setFont(AppTheme.bodyFont(13));
@@ -228,20 +238,28 @@ public abstract class BaseDashboard extends JFrame {
         card.add(prompt);
         card.add(Box.createVerticalStrut(30));
 
-        // Stats row
+        // Stats row — values start as "…" then get updated from DB
         JPanel stats = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
         stats.setOpaque(false);
         stats.setAlignmentX(Component.LEFT_ALIGNMENT);
-        for (String[] stat : getDashboardStats()) {
-            stats.add(makeStatCard(stat[0], stat[1], stat[2]));
+
+        String[][] statDefs = getDashboardStats();
+        statValueLabels = new JLabel[statDefs.length];
+
+        for (int i = 0; i < statDefs.length; i++) {
+            String[] s = statDefs[i];
+            JLabel[] pair = new JLabel[2];
+            stats.add(makeStatCard(s[0], s[1], s[2], pair));
+            statValueLabels[i] = pair[0]; // store reference to value label
         }
         card.add(stats);
 
-        panel.add(card);
-        return panel;
+        outer.add(card);
+        return outer;
     }
 
-    private JPanel makeStatCard(String value, String label, String color) {
+    private JPanel makeStatCard(String value, String label,
+                                 String color, JLabel[] refs) {
         JPanel card = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -256,7 +274,7 @@ public abstract class BaseDashboard extends JFrame {
         };
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBorder(BorderFactory.createEmptyBorder(12, 16, 14, 16));
-        card.setPreferredSize(new Dimension(110, 72));
+        card.setPreferredSize(new Dimension(120, 72));
         card.setOpaque(false);
 
         JLabel val = new JLabel(value);
@@ -269,26 +287,78 @@ public abstract class BaseDashboard extends JFrame {
         lbl.setForeground(AppTheme.TEXT_MUTED);
         lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        if (refs != null) { refs[0] = val; refs[1] = lbl; }
+
         card.add(val);
         card.add(Box.createVerticalStrut(4));
         card.add(lbl);
         return card;
     }
 
+    // ── Live stats loading ────────────────────────────────────────────────────
+
+    /**
+     * Called once after construction.
+     * Fetches real stats from DB off the EDT, then updates the stat tiles.
+     * Subclasses override fetchLiveStats() to return actual DB values.
+     */
+    private void loadStatsAsync() {
+        new SwingWorker<String[][], Void>() {
+            @Override
+            protected String[][] doInBackground() {
+                return fetchLiveStats();   // DB call — off EDT
+            }
+            @Override
+            protected void done() {        // back on EDT
+                try {
+                    String[][] live = get();
+                    if (live == null || statValueLabels == null) return;
+                    for (int i = 0; i < Math.min(live.length, statValueLabels.length); i++) {
+                        if (statValueLabels[i] != null && live[i] != null) {
+                            statValueLabels[i].setText(live[i][0]);
+                            statValueLabels[i].repaint();
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        }.execute();
+    }
+
+    // ── Menu click handler ────────────────────────────────────────────────────
     protected void onMenuClick(String label) {
         contentArea.removeAll();
-        JPanel placeholder = new JPanel(new GridBagLayout());
-        placeholder.setOpaque(false);
-        JLabel msg = new JLabel(label + " — Coming in future sprint");
-        msg.setFont(AppTheme.titleFont(18));
-        msg.setForeground(AppTheme.MID_BLUE);
-        placeholder.add(msg);
-        contentArea.add(placeholder, BorderLayout.CENTER);
+        if (label.equals("Home")) {
+            // Home always shows the welcome/stats panel
+            contentArea.add(buildHomePanel(), BorderLayout.CENTER);
+            loadStatsAsync();
+        } else {
+            JPanel placeholder = new JPanel(new GridBagLayout());
+            placeholder.setOpaque(false);
+            JLabel msg = new JLabel(label + " — Coming in future sprint");
+            msg.setFont(AppTheme.titleFont(18));
+            msg.setForeground(AppTheme.MID_BLUE);
+            placeholder.add(msg);
+            contentArea.add(placeholder, BorderLayout.CENTER);
+        }
         contentArea.revalidate();
         contentArea.repaint();
     }
 
-    // Subclasses provide these
+    // ── Abstract methods ──────────────────────────────────────────────────────
+
+    /** Menu items shown in the sidebar. */
     protected abstract String[][] getMenuItems();
+
+    /**
+     * Initial/fallback stat values shown while DB loads.
+     * Format: {{value, label, hexColor}, ...}
+     */
     protected abstract String[][] getDashboardStats();
+
+    /**
+     * Called off the EDT to fetch live stats from DB.
+     * Returns same format as getDashboardStats().
+     * Return null to keep the initial values.
+     */
+    protected abstract String[][] fetchLiveStats();
 }
