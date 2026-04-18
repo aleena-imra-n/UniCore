@@ -2,6 +2,12 @@ package ui;
 
 import bl.DashboardStatsService;
 import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 
 public class AdminDashboard extends BaseDashboard {
 
@@ -29,6 +35,27 @@ public class AdminDashboard extends BaseDashboard {
             case "Handle Requests" -> {
                 contentArea.add(new AdminWithdrawalPanel(username), BorderLayout.CENTER);
             }
+            case "Manage Courses" -> {
+                contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new ManageCoursesPanel(username), BorderLayout.CENTER);
+            }
+            case "Assign Teachers" -> {
+                contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new AssignTeachersPanel(username), BorderLayout.CENTER);
+            }
+            case "Manage Semesters" -> {
+                contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new ManageSemestersPanel(username), BorderLayout.CENTER);
+            }
+            case "Send Announcements" -> {
+            	contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new AdminAnnouncementsPanel(username), BorderLayout.CENTER);
+            }
+            case "Reports" -> {
+            	contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new AdminReportsPanel(), BorderLayout.CENTER);
+            }
+           
             default -> {
                 javax.swing.JPanel placeholder = new javax.swing.JPanel(new java.awt.GridBagLayout());
                 placeholder.setOpaque(false);
@@ -43,7 +70,7 @@ public class AdminDashboard extends BaseDashboard {
         contentArea.revalidate();
         contentArea.repaint();
     }
-
+    
     @Override
     protected String[][] getMenuItems() {
         return new String[][] {
