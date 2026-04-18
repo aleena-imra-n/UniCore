@@ -55,6 +55,9 @@ public class AdminDashboard extends BaseDashboard {
             	contentArea.setBackground(AppTheme.PALE_BLUE);
                 contentArea.add(new AdminReportsPanel(), BorderLayout.CENTER);
             }
+            case "Generate Transcripts" -> {
+                contentArea.add(new IssueTranscriptsPanel(username), java.awt.BorderLayout.CENTER);
+            }
            
             default -> {
                 javax.swing.JPanel placeholder = new javax.swing.JPanel(new java.awt.GridBagLayout());
