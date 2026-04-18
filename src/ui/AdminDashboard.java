@@ -15,14 +15,21 @@ public class AdminDashboard extends BaseDashboard {
     protected void onMenuClick(String label) {
         contentArea.removeAll();
         contentArea.setBackground(AppTheme.PALE_BLUE);
+
         switch (label) {
-            case "Home" ->{
-            	super.onMenuClick("Home");
+            case "Home" -> {
+                super.onMenuClick("Home");
             }
-            case "Fee Records" ->{
-	            contentArea.add(new AdminFeePanel(), BorderLayout.CENTER);
+            case "Fee Records" -> {
+                contentArea.add(new AdminFeePanel(), BorderLayout.CENTER);
             }
-	            default -> {
+            case "Manage Users" -> {
+                contentArea.add(new ManageUsersPanel(username), BorderLayout.CENTER);
+            }
+            case "Handle Requests" -> {
+                contentArea.add(new AdminWithdrawalPanel(username), BorderLayout.CENTER);
+            }
+            default -> {
                 javax.swing.JPanel placeholder = new javax.swing.JPanel(new java.awt.GridBagLayout());
                 placeholder.setOpaque(false);
                 javax.swing.JLabel msg = new javax.swing.JLabel(label + " — Coming in future sprint");
@@ -32,6 +39,7 @@ public class AdminDashboard extends BaseDashboard {
                 contentArea.add(placeholder, BorderLayout.CENTER);
             }
         }
+
         contentArea.revalidate();
         contentArea.repaint();
     }
@@ -48,6 +56,7 @@ public class AdminDashboard extends BaseDashboard {
             {"📄", "Generate Transcripts"},
             {"🗓️", "Create Timetables"},
             {"📣", "Send Announcements"},
+            {"📝", "Handle Requests"},
             {"📊", "Reports"},
         };
     }
