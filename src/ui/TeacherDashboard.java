@@ -26,6 +26,8 @@ public class TeacherDashboard extends BaseDashboard {
                 contentArea.add(new MarkAttendancePanel(username), BorderLayout.CENTER);
             case "Upload Marks" ->
                 contentArea.add(new UploadMarksPanel(username), BorderLayout.CENTER);
+            case "Student Feedback" ->
+            	contentArea.add(new TeacherFeedbackPanel(username), BorderLayout.CENTER);
             default -> {
                 javax.swing.JPanel placeholder = new javax.swing.JPanel(new java.awt.GridBagLayout());
                 placeholder.setOpaque(false);

@@ -32,6 +32,15 @@ public class StudentDashboard extends BaseDashboard {
             case "Marks & Grades" -> {
                 contentArea.add(new StudentMarksPanel(username), BorderLayout.CENTER);
             }
+            case "Fee Challan" ->{
+            	contentArea.add(new FeeChallanPanel(username), BorderLayout.CENTER);
+            }
+            case "Fee Details" ->{
+            	contentArea.add(new FeeDetailsPanel(username), BorderLayout.CENTER);
+            }
+            case "Submit Feedback" ->{
+            	contentArea.add(new SubmitFeedbackPanel(username), BorderLayout.CENTER);
+            }
             default -> {
                 JPanel placeholder = new JPanel(new GridBagLayout());
                 placeholder.setOpaque(false);

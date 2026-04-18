@@ -212,7 +212,7 @@ public class LoginScreen extends JFrame {
         hint.setFont(AppTheme.bodyFont(11));
         hint.setForeground(AppTheme.TEXT_MUTED);
         hint.setAlignmentX(Component.LEFT_ALIGNMENT);
-        form.add(hint);
+        //form.add(hint);
 
         right.add(form);
         root.add(right);

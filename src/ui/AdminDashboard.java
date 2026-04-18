@@ -16,9 +16,13 @@ public class AdminDashboard extends BaseDashboard {
         contentArea.removeAll();
         contentArea.setBackground(AppTheme.PALE_BLUE);
         switch (label) {
-            case "Home" ->
+            case "Home" ->{
             	super.onMenuClick("Home");
-            default -> {
+            }
+            case "Fee Records" ->{
+	            contentArea.add(new AdminFeePanel(), BorderLayout.CENTER);
+            }
+	            default -> {
                 javax.swing.JPanel placeholder = new javax.swing.JPanel(new java.awt.GridBagLayout());
                 placeholder.setOpaque(false);
                 javax.swing.JLabel msg = new javax.swing.JLabel(label + " — Coming in future sprint");
