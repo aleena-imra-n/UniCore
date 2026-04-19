@@ -28,6 +28,8 @@ public class TeacherDashboard extends BaseDashboard {
                 contentArea.add(new UploadMarksPanel(username), BorderLayout.CENTER);
             case "Student Feedback" ->
             	contentArea.add(new TeacherFeedbackPanel(username), BorderLayout.CENTER);
+            case "My Timetable" ->
+                contentArea.add(new MyTimetablePanel(username, MyTimetablePanel.Role.TEACHER),java.awt.BorderLayout.CENTER);
             default -> {
                 javax.swing.JPanel placeholder = new javax.swing.JPanel(new java.awt.GridBagLayout());
                 placeholder.setOpaque(false);

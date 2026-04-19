@@ -47,6 +47,10 @@ public class StudentDashboard extends BaseDashboard {
             case "Course Withdrawal" -> {
                 contentArea.add(new CourseWithdrawalPanel(username), BorderLayout.CENTER);
             }
+            case "Timetable" -> {
+                contentArea.setBackground(AppTheme.PALE_BLUE);
+                contentArea.add(new MyTimetablePanel(username, MyTimetablePanel.Role.STUDENT),BorderLayout.CENTER);
+            }
             default -> {
                 JPanel placeholder = new JPanel(new GridBagLayout());
                 placeholder.setOpaque(false);
