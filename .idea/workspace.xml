@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ec6de2cc-dcf7-447e-a6f9-09964297771f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/UMS_DB.sql" beforeDir="false" afterPath="$PROJECT_DIR$/UMS_DB.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bl/CourseRegistrationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bl/CourseRegistrationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bl/ManageCoursesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bl/ManageCoursesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dao/CourseRegistrationDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/CourseRegistrationDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dao/ManageCoursesDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/ManageCoursesDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/CourseItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/CourseItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/CourseRow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/CourseRow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/BaseDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/BaseDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/CourseRegistrationPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/CourseRegistrationPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/ManageCoursesPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/ManageCoursesPanel.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3D9WoKVmlxvGPAzgc4fd9529522" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "fixedLayeredModel",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/study/SE/UniCore",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "D:/study/SE/UniCore/untitled1/src/Main.java",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlserver"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\study\SE\UniCore\untitled1" />
+      <recent name="D:\study\SE\UniCore\untitled1\src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\study\SE\UniCore" />
+      <recent name="D:\study\SE\UniCore\untitled1" />
+      <recent name="D:\study\SE\UniCore\untitled1\src" />
+      <recent name="D:\study\SE\UniCore\src" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="UniCore" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ec6de2cc-dcf7-447e-a6f9-09964297771f" name="Changes" comment="" />
+      <created>1777694939678</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1777694939678</updated>
+      <workItem from="1777694940941" duration="2696000" />
+      <workItem from="1777697699162" duration="1385000" />
+      <workItem from="1777699529939" duration="1859000" />
+      <workItem from="1778055952130" duration="135000" />
+      <workItem from="1780679992684" duration="11000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/src/Main.java</url>
+          <line>10</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Main.java</url>
+          <line>10</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

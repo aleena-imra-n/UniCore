@@ -205,7 +205,12 @@ public abstract class BaseDashboard extends JFrame {
         card.setPreferredSize(new Dimension(500, 260));
         card.setOpaque(false);
 
+<<<<<<< Updated upstream:BaseDashboard.java
         JLabel greet = new JLabel("Hello, " + username + "! 👋");
+=======
+        // Greeting
+        JLabel greet = new JLabel("Hello, " + username + "!");
+>>>>>>> Stashed changes:src/ui/BaseDashboard.java
         greet.setFont(AppTheme.titleFont(26));
         greet.setForeground(AppTheme.NAVY);
         greet.setAlignmentX(Component.LEFT_ALIGNMENT);
